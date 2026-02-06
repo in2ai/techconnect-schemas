@@ -22,7 +22,7 @@ class Patient(SQLModel, table=True):
     __tablename__ = "patient"
     
     # Primary key
-    nhc: str = Field(primary_key=True, description="Clinical History Number")
+    nhc: str = Field(primary_key=True, max_length=50, description="Clinical History Number")
     
     # Fields
     sex: Optional[str] = Field(default=None, max_length=50)

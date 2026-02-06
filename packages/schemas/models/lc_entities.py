@@ -27,7 +27,8 @@ class FACS(SQLModel, table=True):
     lc_trial_id: Optional[UUID] = Field(
         default=None,
         foreign_key="lc_trial.id",
-        description="FK to LCTrial"
+        description="FK to LCTrial",
+        unique=True
     )
     
     # Relationships

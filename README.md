@@ -161,7 +161,3 @@ pnpm dev
    members = ["packages/api", "packages/schemas", "packages/my-package"]
    ```
 4. Run `uv sync --all-packages`
-
-## License
-
-Private

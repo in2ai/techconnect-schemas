@@ -119,7 +119,7 @@ def main():
     schema_sql = export_schema(args.dialect)
     
     if args.output:
-        with open(args.output, "w") as f:
+        with open(args.output, "w", encoding="utf-8") as f:
             f.write(schema_sql)
         print(f"✅ Schema exported to {args.output}")
     else:

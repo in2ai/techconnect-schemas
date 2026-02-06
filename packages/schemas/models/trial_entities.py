@@ -117,6 +117,7 @@ class GenomicSequencing(SQLModel, table=True):
     trial_id: Optional[UUID] = Field(
         default=None,
         foreign_key="trial.id",
+        unique=True,
         description="FK to Trial"
     )
     
@@ -142,6 +143,7 @@ class MolecularData(SQLModel, table=True):
     trial_id: Optional[UUID] = Field(
         default=None,
         foreign_key="trial.id",
+        unique=True,
         description="FK to Trial"
     )
     

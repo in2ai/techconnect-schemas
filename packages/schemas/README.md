@@ -11,18 +11,35 @@ Python implementation of the TechConnect biomedical research database schemas us
 
 ## Installation
 
-```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+### Workspace Install (Default - Recommended)
 
-# Install dependencies
-pip install -e .
+If you're working within the TechConnect monorepo, use the UV workspace command from the **repository root**:
+
+```bash
+# From the repository root (backend/)
+uv sync --package techconnect-schemas
 
 # With database drivers
-pip install -e ".[postgres]"  # For PostgreSQL
-pip install -e ".[mysql]"     # For MySQL
-pip install -e ".[sqlite]"    # For SQLite async support
+uv sync --package techconnect-schemas --extra postgres  # For PostgreSQL
+uv sync --package techconnect-schemas --extra mysql     # For MySQL
+uv sync --package techconnect-schemas --extra sqlite    # For SQLite async support
+```
+
+### Standalone Install (Alternative)
+
+If you're working with this package independently (outside the monorepo), navigate to the package directory and install directly:
+
+```bash
+# Navigate to the package directory
+cd packages/schemas
+
+# Install the package in editable mode
+uv pip install -e .
+
+# With database drivers
+uv pip install -e ".[postgres]"  # For PostgreSQL
+uv pip install -e ".[mysql]"     # For MySQL
+uv pip install -e ".[sqlite]"    # For SQLite async support
 ```
 
 ## Quick Start
@@ -31,17 +48,19 @@ pip install -e ".[sqlite]"    # For SQLite async support
 
 ```bash
 # Export PostgreSQL schema
-python export_schema.py --dialect postgres
+uv run --package techconnect-schemas export-schema --dialect postgresql
 
 # Export MySQL schema
-python export_schema.py --dialect mysql
+uv run --package techconnect-schemas export-schema --dialect mysql
 
 # Export SQLite schema
-python export_schema.py --dialect sqlite
+uv run --package techconnect-schemas export-schema --dialect sqlite
 
 # Save to file
-python export_schema.py --dialect postgres --output schema.sql
+uv run --package techconnect-schemas export-schema --dialect postgresql --output schema.sql
 ```
+
+> **Note:** If running directly from `packages/schemas/`, you can also use `python export_schema.py --dialect postgresql`.
 
 ### Create Database Tables
 
@@ -179,7 +198,3 @@ Patient (1) ──────── (N) Tumor (1) ──────── (N) 
 | Migrations        | `drizzle-kit`        | Alembic (external)                  |
 | Validation        | Zod integration      | Built-in Pydantic                   |
 | API Integration   | tRPC                 | FastAPI                             |
-
-## License
-
-MIT
