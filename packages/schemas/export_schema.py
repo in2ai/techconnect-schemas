@@ -12,33 +12,13 @@ Usage:
 """
 
 import argparse
-from sqlalchemy import create_engine
 from sqlalchemy.schema import CreateTable
 from sqlalchemy.dialects import postgresql, mysql, sqlite
 
 from sqlmodel import SQLModel
 
 # Import all models to register them with SQLModel metadata
-from models import (
-    Patient,
-    Tumor,
-    LiquidBiopsy,
-    Biomodel,
-    Passage,
-    Trial,
-    PDXTrial,
-    PDOTrial,
-    LCTrial,
-    Implant,
-    SizeRecord,
-    Mouse,
-    FACS,
-    UsageRecord,
-    Image,
-    Cryopreservation,
-    GenomicSequencing,
-    MolecularData,
-)
+import models  # noqa: F401
 
 
 # Dialect mapping
@@ -46,6 +26,7 @@ DIALECTS = {
     "postgres": postgresql.dialect(),
     "postgresql": postgresql.dialect(),
     "mysql": mysql.dialect(),
+    "mariadb": mysql.dialect(),
     "sqlite": sqlite.dialect(),
 }
 
@@ -58,21 +39,21 @@ def get_create_table_sql(table, dialect) -> str:
 def export_schema(dialect_name: str) -> str:
     """
     Export the complete schema as SQL DDL statements.
-    
+
     Args:
-        dialect_name: Database dialect ('postgres', 'mysql', 'sqlite')
-        
+        dialect_name: Database dialect ('postgres', 'mysql', 'mariadb', 'sqlite')
+
     Returns:
         Complete SQL schema as a string
     """
     if dialect_name not in DIALECTS:
         raise ValueError(f"Unknown dialect: {dialect_name}. Choose from: {list(DIALECTS.keys())}")
-    
+
     dialect = DIALECTS[dialect_name]
-    
+
     # Get all tables in dependency order
     metadata = SQLModel.metadata
-    
+
     # Generate header
     lines = [
         "-- TechConnect Database Schema",
@@ -83,7 +64,7 @@ def export_schema(dialect_name: str) -> str:
         "-- Do not edit directly.",
         "",
     ]
-    
+
     # Generate CREATE TABLE statements in correct order (respecting foreign keys)
     for table in metadata.sorted_tables:
         sql = get_create_table_sql(table, dialect)
@@ -93,7 +74,7 @@ def export_schema(dialect_name: str) -> str:
             sql += ";"
         lines.append(sql)
         lines.append("")
-    
+
     return "\n".join(lines)
 
 
@@ -102,22 +83,20 @@ def main():
         description="Export SQL DDL schema for different database dialects"
     )
     parser.add_argument(
-        "--dialect", "-d",
-        choices=["postgres", "postgresql", "mysql", "sqlite"],
+        "--dialect",
+        "-d",
+        choices=["postgres", "postgresql", "mysql", "mariadb", "sqlite"],
         default="postgres",
-        help="Database dialect (default: postgres)"
+        help="Database dialect (default: postgres)",
     )
     parser.add_argument(
-        "--output", "-o",
-        type=str,
-        default=None,
-        help="Output file path (default: print to stdout)"
+        "--output", "-o", type=str, default=None, help="Output file path (default: print to stdout)"
     )
-    
+
     args = parser.parse_args()
-    
+
     schema_sql = export_schema(args.dialect)
-    
+
     if args.output:
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(schema_sql)

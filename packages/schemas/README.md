@@ -6,7 +6,7 @@ Python implementation of the TechConnect biomedical research database schemas us
 
 - **Type Safety**: Full type hints with Pydantic validation
 - **ORM Integration**: Direct SQLAlchemy compatibility for database operations
-- **Multi-Database Support**: Works with PostgreSQL, MySQL, and SQLite
+- **Multi-Database Support**: Works with PostgreSQL, MySQL, MariaDB, and SQLite
 - **Relationship Mapping**: Full support for 1:1, 1:N, and inheritance relationships
 
 ## Installation
@@ -21,7 +21,7 @@ uv sync --package techconnect-schemas
 
 # With database drivers
 uv sync --package techconnect-schemas --extra postgres  # For PostgreSQL
-uv sync --package techconnect-schemas --extra mysql     # For MySQL
+uv sync --package techconnect-schemas --extra mysql     # For MySQL/MariaDB
 uv sync --package techconnect-schemas --extra sqlite    # For SQLite async support
 ```
 
@@ -38,7 +38,7 @@ uv pip install -e .
 
 # With database drivers
 uv pip install -e ".[postgres]"  # For PostgreSQL
-uv pip install -e ".[mysql]"     # For MySQL
+uv pip install -e ".[mysql]"     # For MySQL/MariaDB
 uv pip install -e ".[sqlite]"    # For SQLite async support
 ```
 
@@ -53,11 +53,14 @@ uv run --package techconnect-schemas export-schema --dialect postgresql
 # Export MySQL schema
 uv run --package techconnect-schemas export-schema --dialect mysql
 
+# Export MariaDB schema
+uv run --package techconnect-schemas export-schema --dialect mariadb
+
 # Export SQLite schema
 uv run --package techconnect-schemas export-schema --dialect sqlite
 
 # Save to file
-uv run --package techconnect-schemas export-schema --dialect postgresql --output schema.sql
+uv run --package techconnect-schemas export-schema --dialect mariadb --output schema.sql
 ```
 
 > **Note:** If running directly from `packages/schemas/`, you can also use `python export_schema.py --dialect postgresql`.
@@ -172,7 +175,7 @@ with Session(engine) as session:
 
 ## Entity Relationship Diagram
 
-```
+```text
 Patient (1) ──────── (N) Tumor (1) ──────── (N) Biomodel (1) ──────── (0..2) Passage
                            │                                                    │
                            └── (0..1) LiquidBiopsy                              │
