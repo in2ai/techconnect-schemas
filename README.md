@@ -46,6 +46,9 @@ cd packages/api && uv run fastapi dev app/main.py
 
 # Export SQL schema
 uv run --package techconnect-schemas export-schema --dialect postgresql
+
+# Initialize database tables
+uv run --package techconnect-schemas init-db
 ```
 
 ## Common Commands
@@ -93,6 +96,13 @@ uv run --package techconnect-schemas export-schema --dialect postgresql
 
 # Export MySQL schema
 uv run --package techconnect-schemas export-schema --dialect mysql
+```
+
+### Database Initialization
+
+```bash
+# Initialize tables directly in the database (uses DATABASE_URL in the root .env)
+uv run --package techconnect-schemas init-db
 ```
 
 ### Building
@@ -165,6 +175,9 @@ SQLModel schemas for the TechConnect application. Can be used standalone to gene
 ```bash
 # Export schema to stdout
 uv run --package techconnect-schemas export-schema --dialect postgresql
+
+# Initialize database tables
+uv run --package techconnect-schemas init-db
 ```
 
 ### `packages/api`
@@ -183,7 +196,7 @@ uv run --package techconnect-api fastapi dev packages/api/app/main.py
 ## Development Workflow
 
 1. **Make schema changes** in `packages/schemas/models/`
-2. **Export and apply** DDL to your database
+2. **Export and apply** DDL to your database or run `uv run --package techconnect-schemas init-db`
 3. **Add API endpoints** in `packages/api/app/`
 
 ## Adding a New Workspace Package

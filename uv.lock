@@ -779,7 +779,11 @@ name = "techconnect-schemas"
 version = "0.1.0"
 source = { editable = "packages/schemas" }
 dependencies = [
+    { name = "aiosqlite" },
+    { name = "psycopg2-binary" },
     { name = "pydantic" },
+    { name = "pymysql" },
+    { name = "python-dotenv" },
     { name = "sqlmodel" },
 ]
 
@@ -790,33 +794,21 @@ dev = [
     { name = "python-dotenv" },
     { name = "ruff" },
 ]
-dotenv = [
-    { name = "python-dotenv" },
-]
-mysql = [
-    { name = "pymysql" },
-]
-postgres = [
-    { name = "psycopg2-binary" },
-]
-sqlite = [
-    { name = "aiosqlite" },
-]
 
 [package.metadata]
 requires-dist = [
-    { name = "aiosqlite", marker = "extra == 'sqlite'", specifier = ">=0.22.1" },
-    { name = "psycopg2-binary", marker = "extra == 'postgres'", specifier = ">=2.9.11" },
+    { name = "aiosqlite", specifier = ">=0.22.1" },
+    { name = "psycopg2-binary", specifier = ">=2.9.11" },
     { name = "pydantic", specifier = ">=2.12.5" },
-    { name = "pymysql", marker = "extra == 'mysql'", specifier = ">=1.1.2" },
+    { name = "pymysql", specifier = ">=1.1.2" },
     { name = "pyrefly", marker = "extra == 'dev'", specifier = ">=0.51.0" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=9.0.2" },
+    { name = "python-dotenv", specifier = ">=1.2.1" },
     { name = "python-dotenv", marker = "extra == 'dev'", specifier = ">=1.2.1" },
-    { name = "python-dotenv", marker = "extra == 'dotenv'", specifier = ">=1.2.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.15.0" },
     { name = "sqlmodel", specifier = ">=0.0.32" },
 ]
-provides-extras = ["postgres", "mysql", "sqlite", "dotenv", "dev"]
+provides-extras = ["dev"]
 
 [[package]]
 name = "typer"

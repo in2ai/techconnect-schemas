@@ -18,11 +18,6 @@ If you're working within the TechConnect monorepo, use the UV workspace command 
 ```bash
 # From the repository root (backend/)
 uv sync --package techconnect-schemas
-
-# With database drivers
-uv sync --package techconnect-schemas --extra postgres  # For PostgreSQL
-uv sync --package techconnect-schemas --extra mysql     # For MySQL/MariaDB
-uv sync --package techconnect-schemas --extra sqlite    # For SQLite async support
 ```
 
 ### Standalone Install (Alternative)
@@ -35,11 +30,6 @@ cd packages/schemas
 
 # Install the package in editable mode
 uv pip install -e .
-
-# With database drivers
-uv pip install -e ".[postgres]"  # For PostgreSQL
-uv pip install -e ".[mysql]"     # For MySQL/MariaDB
-uv pip install -e ".[sqlite]"    # For SQLite async support
 ```
 
 ## Quick Start
@@ -66,6 +56,17 @@ uv run --package techconnect-schemas export-schema --dialect mariadb --output sc
 > **Note:** If running directly from `packages/schemas/`, you can also use `python export_schema.py --dialect postgresql`.
 
 ### Create Database Tables
+
+#### Via CLI (Recommended)
+
+Initialize your database tables directly from the command line using the configured `DATABASE_URL` in your project root `.env` file:
+
+```bash
+# From the repository root (backend/)
+uv run --package techconnect-schemas init-db
+```
+
+#### Via Python code
 
 ```python
 from database import create_db_and_tables

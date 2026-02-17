@@ -17,11 +17,20 @@ from typing import Generator, Optional
 
 from sqlmodel import SQLModel, create_engine, Session
 
-# Try to load .env file if python-dotenv is available
+# Try to load .env file from project root if python-dotenv is available
 try:
+    from pathlib import Path
     from dotenv import load_dotenv
 
-    load_dotenv()
+    # Root is 3 levels up: packages/schemas/database.py -> packages/schemas -> packages -> root
+    root_path = Path(__file__).resolve().parent.parent.parent
+    env_path = root_path / ".env"
+
+    if env_path.exists():
+        load_dotenv(env_path)
+    else:
+        # Fallback to default behavior if root .env not found
+        load_dotenv()
 except ImportError:
     pass  # python-dotenv not installed, use system environment variables only
 
@@ -97,7 +106,12 @@ def get_session(engine) -> Generator[Session, None, None]:
         yield session
 
 
-if __name__ == "__main__":
+def main():
+    """Entry point for the init-db script."""
     # Will use DATABASE_URL from environment, or fallback to SQLite
-    engine = create_db_and_tables(echo=True)
+    create_db_and_tables(echo=True)
     print("✅ Database tables created successfully!")
+
+
+if __name__ == "__main__":
+    main()
