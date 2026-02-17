@@ -180,23 +180,11 @@ uv run fastapi dev app/main.py
 uv run --package techconnect-api fastapi dev packages/api/app/main.py
 ```
 
-## Frontend
-
-The frontend is a separate project located in the `frontend/` directory (sibling to this workspace).
-
-```bash
-cd ../frontend
-pnpm install
-pnpm dev
-# Available at http://localhost:5173
-```
-
 ## Development Workflow
 
 1. **Make schema changes** in `packages/schemas/models/`
 2. **Export and apply** DDL to your database
 3. **Add API endpoints** in `packages/api/app/`
-4. **Update frontend** in `frontend/src/`
 
 ## Adding a New Workspace Package
 
