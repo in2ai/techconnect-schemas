@@ -1,32 +1,59 @@
-# frontend
+# Frontend
 
-## Installation
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.4.
 
-Install the application dependencies by running:
+## Development server
 
-```sh
-npm install
+To start a local development server, run:
+
+```bash
+ng serve
 ```
 
-## Development
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
 
-Start the application in development mode by running:
+## Code scaffolding
 
-```sh
-npm run dev
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
 ```
 
-## Production
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
 
-Build the application in production mode by running:
-
-```sh
-npm run build
+```bash
+ng generate --help
 ```
 
-## DataProvider
+## Building
 
-The included data provider use [ra-data-simple-rest](https://github.com/marmelab/react-admin/tree/master/packages/ra-data-simple-rest). It fits REST APIs using simple GET parameters for filters and sorting. This is the dialect used for instance in [FakeRest](https://github.com/marmelab/FakeRest).
+To build the project run:
 
-You'll find an `.env` file at the project root that includes a `VITE_JSON_SERVER_URL` variable. Set it to the URL of your backend.
+```bash
+ng build
+```
 
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
