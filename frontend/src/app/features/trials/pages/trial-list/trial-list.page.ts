@@ -63,6 +63,7 @@ export class TrialListPage {
       if (result) {
         this.trialService.create(result).subscribe({
           next: () => { this.notification.success('Trial created'); this.trialsResource.reload(); },
+          error: () => { this.notification.error('Failed to create trial'); },
         });
       }
     });

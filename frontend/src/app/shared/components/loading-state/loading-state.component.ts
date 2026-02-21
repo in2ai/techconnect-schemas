@@ -10,8 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   template: `
     @switch (status()) {
       @case ('loading') {
-        <div class="state-container">
-          <mat-spinner diameter="48"></mat-spinner>
+        <div class="state-container" role="status" aria-live="polite">
+          <mat-spinner diameter="48" aria-label="Loading content"></mat-spinner>
           <p class="state-text">Loading...</p>
         </div>
       }
@@ -27,7 +27,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       }
       @case ('empty') {
         <div class="state-container">
-          <mat-icon class="empty-icon">{{ emptyIcon() }}</mat-icon>
+          <mat-icon class="empty-icon" aria-hidden="true">{{ emptyIcon() }}</mat-icon>
           <p class="state-title">{{ emptyTitle() || 'No data found' }}</p>
           <p class="state-text">{{ emptyMessage() || 'There are no items to display yet.' }}</p>
         </div>

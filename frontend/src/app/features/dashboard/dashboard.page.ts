@@ -42,7 +42,9 @@ interface DashboardCard {
                 </div>
                 <div class="card-count">
                   @if (getResource(card.endpoint).isLoading()) {
-                    <mat-spinner diameter="20"></mat-spinner>
+                    <mat-spinner diameter="20" aria-label="Loading count"></mat-spinner>
+                  } @else if (getResource(card.endpoint).error()) {
+                    <mat-icon class="count-error-icon" aria-label="Error loading data">error_outline</mat-icon>
                   } @else if (getResource(card.endpoint).hasValue()) {
                     {{ getResource(card.endpoint).value()!.length }}
                   } @else {
@@ -135,6 +137,13 @@ interface DashboardCard {
       color: var(--mat-sys-on-surface);
     }
 
+    .count-error-icon {
+      color: var(--mat-sys-error);
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+
     .card-title {
       font: var(--mat-sys-title-medium);
       color: var(--mat-sys-on-surface);
@@ -186,6 +195,10 @@ export class DashboardPage {
   }
 
   getResource(endpoint: string) {
-    return this.resources.get(endpoint)!;
+    const resource = this.resources.get(endpoint);
+    if (!resource) {
+      throw new Error(`No resource found for endpoint: ${endpoint}`);
+    }
+    return resource;
   }
 }

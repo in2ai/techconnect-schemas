@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { httpResource } from '@angular/common/http';
+import { filter, switchMap, tap, catchError, take, EMPTY } from 'rxjs';
 import { API_URL } from '../../../../core/tokens/api-url.token';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { LiquidBiopsyService } from '../../services/liquid-biopsy.service';
@@ -59,13 +60,22 @@ export class LiquidBiopsyListPage {
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open(LiquidBiopsyFormComponent, { width: '500px', data: { mode: 'create' } });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.service.create(result).subscribe({
-          next: () => { this.notification.success('Liquid biopsy created'); this.resource.reload(); },
-        });
-      }
-    });
+    this.dialog
+      .open(LiquidBiopsyFormComponent, { width: '500px', data: { mode: 'create' } })
+      .afterClosed()
+      .pipe(
+        take(1),
+        filter((result): result is LiquidBiopsy => !!result),
+        switchMap((result) => this.service.create(result)),
+        tap(() => {
+          this.notification.success('Liquid biopsy created');
+          this.resource.reload();
+        }),
+        catchError(() => {
+          this.notification.error('Failed to create liquid biopsy');
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 }

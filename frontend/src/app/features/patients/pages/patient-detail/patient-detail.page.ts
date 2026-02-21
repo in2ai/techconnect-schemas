@@ -76,6 +76,12 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (tumorsResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (tumorsResource.error()) {
+              <app-loading-state
+                status="error"
+                errorMessage="Failed to load tumors"
+                (retry)="tumorsResource.reload()"
+              />
             } @else if (tumorsResource.hasValue() && filteredTumors().length === 0) {
               <app-loading-state
                 status="empty"
@@ -187,6 +193,9 @@ export class PatientDetailPage {
             this.notification.success('Patient updated successfully');
             this.patientResource.reload();
           },
+          error: () => {
+            this.notification.error('Failed to update patient');
+          },
         });
       }
     });
@@ -209,6 +218,9 @@ export class PatientDetailPage {
           next: () => {
             this.notification.success('Patient deleted');
             this.router.navigate(['/patients']);
+          },
+          error: () => {
+            this.notification.error('Failed to delete patient');
           },
         });
       }

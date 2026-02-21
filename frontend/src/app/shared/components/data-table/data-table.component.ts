@@ -53,7 +53,7 @@ export interface ColumnDef {
       <table mat-table [dataSource]="dataSource()" matSort class="data-table">
         @for (col of columns(); track col.key) {
           <ng-container [matColumnDef]="col.key">
-            <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col.sortable !== false ? col.key : ''">
+            <th mat-header-cell *matHeaderCellDef [mat-sort-header]="col.key" [disabled]="col.sortable === false">
               {{ col.label }}
             </th>
             <td mat-cell *matCellDef="let row">
@@ -68,13 +68,13 @@ export interface ColumnDef {
                   }
                 }
                 @case ('date') {
-                  {{ row[col.key] || '—' }}
+                  {{ row[col.key] !== null && row[col.key] !== undefined ? row[col.key] : '—' }}
                 }
                 @case ('number') {
                   {{ row[col.key] !== null && row[col.key] !== undefined ? row[col.key] : '—' }}
                 }
                 @default {
-                  {{ row[col.key] || '—' }}
+                  {{ row[col.key] !== null && row[col.key] !== undefined ? row[col.key] : '—' }}
                 }
               }
             </td>
@@ -89,6 +89,7 @@ export interface ColumnDef {
           [class.selected]="row === selectedRow()"
           (click)="onRowClick(row)"
           (keydown.enter)="onRowClick(row)"
+          (keydown.space)="onRowClick(row); $event.preventDefault()"
           tabindex="0"
           role="button"
         ></tr>

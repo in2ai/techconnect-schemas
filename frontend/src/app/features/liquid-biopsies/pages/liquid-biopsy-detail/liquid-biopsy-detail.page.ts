@@ -19,7 +19,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
   imports: [MatCardModule, MatButtonModule, MatIconModule, PageHeaderComponent, LoadingStateComponent],
   template: `
     <app-page-header title="Liquid Biopsy" [breadcrumbs]="breadcrumbs()">
-      <button mat-stroked-button color="warn" (click)="confirmDelete()"><mat-icon>delete</mat-icon> Delete</button>
+      <button mat-stroked-button color="warn" (click)="confirmDelete()" [disabled]="!resource.hasValue()"><mat-icon>delete</mat-icon> Delete</button>
     </app-page-header>
 
     @if (resource.isLoading()) {
@@ -74,6 +74,7 @@ export class LiquidBiopsyDetailPage {
       if (confirmed) {
         this.service.delete(this.id()).subscribe({
           next: () => { this.notification.success('Liquid biopsy deleted'); this.router.navigate(['/liquid-biopsies']); },
+          error: () => { this.notification.error('Failed to delete liquid biopsy'); },
         });
       }
     });

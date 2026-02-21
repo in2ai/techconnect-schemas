@@ -68,7 +68,7 @@ export interface TumorFormData {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="model" [disabled]="!model.biobank_code || !model.patient_nhc">
+      <button mat-flat-button [mat-dialog-close]="model" [disabled]="!model.biobank_code.trim() || !model.patient_nhc.trim()">
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
     </mat-dialog-actions>

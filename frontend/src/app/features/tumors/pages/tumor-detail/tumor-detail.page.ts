@@ -62,6 +62,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (biomodelsResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (biomodelsResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load biomodels" (retry)="biomodelsResource.reload()" />
             } @else if (filteredBiomodels().length === 0) {
               <app-loading-state status="empty" emptyIcon="science" emptyTitle="No biomodels" emptyMessage="No biomodels linked to this tumor." />
             } @else {
@@ -73,6 +75,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (liquidBiopsiesResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (liquidBiopsiesResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load liquid biopsies" (retry)="liquidBiopsiesResource.reload()" />
             } @else if (filteredLiquidBiopsies().length === 0) {
               <app-loading-state status="empty" emptyIcon="water_drop" emptyTitle="No liquid biopsies" emptyMessage="No liquid biopsies linked to this tumor." />
             } @else {
@@ -147,6 +151,7 @@ export class TumorDetailPage {
       if (result) {
         this.tumorService.update(tumor.biobank_code, result).subscribe({
           next: () => { this.notification.success('Tumor updated'); this.tumorResource.reload(); },
+          error: () => { this.notification.error('Failed to update tumor'); },
         });
       }
     });
@@ -161,6 +166,7 @@ export class TumorDetailPage {
       if (confirmed) {
         this.tumorService.delete(this.biobank_code()).subscribe({
           next: () => { this.notification.success('Tumor deleted'); this.router.navigate(['/tumors']); },
+          error: () => this.notification.error('Failed to delete tumor'),
         });
       }
     });

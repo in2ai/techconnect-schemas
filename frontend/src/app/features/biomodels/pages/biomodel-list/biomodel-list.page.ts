@@ -65,6 +65,7 @@ export class BiomodelListPage {
       if (result) {
         this.biomodelService.create(result).subscribe({
           next: () => { this.notification.success('Biomodel created'); this.biomodelsResource.reload(); },
+          error: () => { this.notification.error('Failed to create biomodel'); },
         });
       }
     });

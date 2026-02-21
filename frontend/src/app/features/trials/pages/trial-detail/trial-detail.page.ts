@@ -14,8 +14,6 @@ import {
   UsageRecord,
   TrialImage,
   Cryopreservation,
-  GenomicSequencing,
-  MolecularData,
   Implant,
   Mouse,
 } from '../../models/trial-related.model';
@@ -107,6 +105,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (implantsResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (implantsResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load implants" (retry)="implantsResource.reload()" />
             } @else if (filteredImplants().length === 0) {
               <app-loading-state status="empty" emptyIcon="build" emptyTitle="No implants" emptyMessage="No implants linked to this trial." />
             } @else {
@@ -118,6 +118,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (mouseResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (mouseResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load mice" (retry)="mouseResource.reload()" />
             } @else if (filteredMice().length === 0) {
               <app-loading-state status="empty" emptyIcon="pets" emptyTitle="No mice" emptyMessage="No mice linked to this trial." />
             } @else {
@@ -129,6 +131,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (usageResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (usageResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load usage records" (retry)="usageResource.reload()" />
             } @else if (filteredUsage().length === 0) {
               <app-loading-state status="empty" emptyIcon="receipt" emptyTitle="No usage records" emptyMessage="No usage records for this trial." />
             } @else {
@@ -140,6 +144,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (imagesResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (imagesResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load images" (retry)="imagesResource.reload()" />
             } @else if (filteredImages().length === 0) {
               <app-loading-state status="empty" emptyIcon="image" emptyTitle="No images" emptyMessage="No images for this trial." />
             } @else {
@@ -151,6 +157,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (cryoResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (cryoResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load cryopreservations" (retry)="cryoResource.reload()" />
             } @else if (filteredCryo().length === 0) {
               <app-loading-state status="empty" emptyIcon="ac_unit" emptyTitle="No cryopreservations" emptyMessage="No cryopreservation records for this trial." />
             } @else {
@@ -253,6 +261,7 @@ export class TrialDetailPage {
       if (confirmed) {
         this.trialService.delete(this.id()).subscribe({
           next: () => { this.notification.success('Trial deleted'); this.router.navigate(['/trials']); },
+          error: () => { this.notification.error('Failed to delete trial'); },
         });
       }
     });

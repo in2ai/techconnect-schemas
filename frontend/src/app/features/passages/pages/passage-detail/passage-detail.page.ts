@@ -49,6 +49,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (trialsResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (trialsResource.error()) {
+              <app-loading-state status="error" errorMessage="Unable to load trials" (retry)="trialsResource.reload()" />
             } @else if (filteredTrials().length === 0) {
               <app-loading-state status="empty" emptyIcon="assignment" emptyTitle="No trials" emptyMessage="No trials linked to this passage." />
             } @else {
@@ -110,6 +112,7 @@ export class PassageDetailPage {
       if (confirmed) {
         this.passageService.delete(this.id()).subscribe({
           next: () => { this.notification.success('Passage deleted'); this.router.navigate(['/passages']); },
+          error: () => { this.notification.error('Failed to delete passage'); },
         });
       }
     });

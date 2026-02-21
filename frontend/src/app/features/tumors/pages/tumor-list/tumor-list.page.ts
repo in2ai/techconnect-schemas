@@ -1,9 +1,11 @@
-import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, DestroyRef } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { httpResource } from '@angular/common/http';
+import { filter, switchMap, tap, catchError, EMPTY } from 'rxjs';
 import { API_URL } from '../../../../core/tokens/api-url.token';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { TumorService } from '../../services/tumor.service';
@@ -42,6 +44,7 @@ export class TumorListPage {
   private tumorService = inject(TumorService);
   private notification = inject(NotificationService);
   private apiUrl = inject(API_URL);
+  private destroyRef = inject(DestroyRef);
 
   columns: ColumnDef[] = [
     { key: 'biobank_code', label: 'Biobank Code', sortable: true },
@@ -60,19 +63,22 @@ export class TumorListPage {
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open(TumorFormComponent, {
-      width: '600px',
-      data: { mode: 'create' },
-    });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        this.tumorService.create(result).subscribe({
-          next: () => {
-            this.notification.success('Tumor created successfully');
-            this.tumorsResource.reload();
-          },
-        });
-      }
-    });
+    this.dialog
+      .open(TumorFormComponent, { width: '600px', data: { mode: 'create' } })
+      .afterClosed()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((result): result is Tumor => !!result),
+        switchMap((result) => this.tumorService.create(result)),
+        tap(() => {
+          this.notification.success('Tumor created successfully');
+          this.tumorsResource.reload();
+        }),
+        catchError(() => {
+          this.notification.error('Failed to create tumor');
+          return EMPTY;
+        }),
+      )
+      .subscribe();
   }
 }

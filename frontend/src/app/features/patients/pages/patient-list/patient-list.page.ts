@@ -85,6 +85,10 @@ export class PatientListPage {
             this.notification.success('Patient created successfully');
             this.patientsResource.reload();
           },
+          error: (err) => {
+            this.notification.error('Failed to create patient');
+            console.error('Patient creation failed:', err);
+          },
         });
       }
     });

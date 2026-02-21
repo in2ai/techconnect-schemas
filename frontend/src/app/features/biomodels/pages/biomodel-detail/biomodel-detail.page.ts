@@ -53,6 +53,8 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
           <div class="tab-content">
             @if (passagesResource.isLoading()) {
               <app-loading-state status="loading" />
+            } @else if (passagesResource.error()) {
+              <app-loading-state status="error" errorMessage="Failed to load passages" (retry)="passagesResource.reload()" />
             } @else if (filteredPassages().length === 0) {
               <app-loading-state status="empty" emptyIcon="swap_horiz" emptyTitle="No passages" emptyMessage="No passages linked to this biomodel." />
             } @else {
@@ -114,6 +116,7 @@ export class BiomodelDetailPage {
       if (result) {
         this.biomodelService.update(biomodel.id, result).subscribe({
           next: () => { this.notification.success('Biomodel updated'); this.biomodelResource.reload(); },
+          error: () => { this.notification.error('Failed to update biomodel'); },
         });
       }
     });
@@ -128,6 +131,7 @@ export class BiomodelDetailPage {
       if (confirmed) {
         this.biomodelService.delete(this.id()).subscribe({
           next: () => { this.notification.success('Biomodel deleted'); this.router.navigate(['/biomodels']); },
+          error: () => { this.notification.error('Failed to delete biomodel'); },
         });
       }
     });

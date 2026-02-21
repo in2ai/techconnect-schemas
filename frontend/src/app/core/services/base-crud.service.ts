@@ -22,6 +22,9 @@ export abstract class BaseCrudService<T> {
   }
 
   get(id: string): Observable<T> {
+    if (!id) {
+      throw new Error('ID is required');
+    }
     return this.http.get<T>(`${this.baseUrl}/${id}`);
   }
 
