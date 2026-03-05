@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { httpResource } from '@angular/common/http';
 import { API_URL } from '../../../../core/tokens/api-url.token';
 import { Tumor } from '../../models/tumor.model';
@@ -30,18 +30,17 @@ export interface TumorFormData {
     MatFormFieldModule,
     MatSelectModule,
     MatProgressSpinnerModule,
-    FormsModule,
+    ReactiveFormsModule,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.mode === 'create' ? 'New Tumor' : 'Edit Tumor' }}</h2>
     <mat-dialog-content>
-      <form class="form-grid">
+      <form class="form-grid" [formGroup]="form">
         <mat-form-field appearance="outline">
           <mat-label>Biobank Code</mat-label>
           <input
             matInput
-            [(ngModel)]="model.biobank_code"
-            name="biobank_code"
+            formControlName="biobank_code"
             required
             [readonly]="data.mode === 'edit'"
           />
@@ -54,7 +53,7 @@ export interface TumorFormData {
               <mat-option>Loading…</mat-option>
             </mat-select>
           } @else {
-            <mat-select [(ngModel)]="model.patient_nhc" name="patient_nhc" required>
+            <mat-select formControlName="patient_nhc" required>
               @for (patient of patientsResource.value(); track patient.nhc) {
                 <mat-option [value]="patient.nhc">{{ patient.nhc }}</mat-option>
               }
@@ -64,49 +63,39 @@ export interface TumorFormData {
 
         <mat-form-field appearance="outline">
           <mat-label>Lab Code</mat-label>
-          <input matInput [(ngModel)]="model.lab_code" name="lab_code" />
+          <input matInput formControlName="lab_code" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Classification</mat-label>
-          <input matInput [(ngModel)]="model.classification" name="classification" />
+          <input matInput formControlName="classification" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Grade</mat-label>
-          <input matInput [(ngModel)]="model.grade" name="grade" />
+          <input matInput formControlName="grade" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Organ</mat-label>
-          <input matInput [(ngModel)]="model.organ" name="organ" />
+          <input matInput formControlName="organ" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Status</mat-label>
-          <input matInput [(ngModel)]="model.status" name="status" />
+          <input matInput formControlName="status" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>TNM</mat-label>
-          <input matInput [(ngModel)]="model.tnm" name="tnm" />
+          <input matInput formControlName="tnm" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>AP Observation</mat-label>
-          <textarea
-            matInput
-            [(ngModel)]="model.ap_observation"
-            name="ap_observation"
-            rows="2"
-          ></textarea>
+          <textarea matInput formControlName="ap_observation" rows="2"></textarea>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Registration Date</mat-label>
-          <input
-            matInput
-            [(ngModel)]="model.registration_date"
-            name="registration_date"
-            type="date"
-          />
+          <input matInput formControlName="registration_date" type="date" />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Operation Date</mat-label>
-          <input matInput [(ngModel)]="model.operation_date" name="operation_date" type="date" />
+          <input matInput formControlName="operation_date" type="date" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
@@ -114,8 +103,8 @@ export interface TumorFormData {
       <button mat-button mat-dialog-close>Cancel</button>
       <button
         mat-flat-button
-        [mat-dialog-close]="model"
-        [disabled]="!model.biobank_code.trim() || !model.patient_nhc.trim()"
+        [mat-dialog-close]="form.getRawValue()"
+        [disabled]="form.invalid"
       >
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
@@ -136,23 +125,34 @@ export interface TumorFormData {
 })
 export class TumorFormComponent {
   private readonly apiUrl = inject(API_URL);
-  data = inject<TumorFormData>(MAT_DIALOG_DATA);
+  readonly data = inject<TumorFormData>(MAT_DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
 
   patientsResource = httpResource<Patient[]>(() => `${this.apiUrl}/patients`, { defaultValue: [] });
 
-  model: Tumor = this.data.tumor
-    ? { ...this.data.tumor }
-    : {
-        biobank_code: '',
-        lab_code: null,
-        classification: null,
-        ap_observation: null,
-        grade: null,
-        organ: null,
-        status: null,
-        tnm: null,
-        registration_date: null,
-        operation_date: null,
-        patient_nhc: '',
-      };
+  readonly form = this.formBuilder.group({
+    biobank_code: this.formBuilder.nonNullable.control(this.data.tumor?.biobank_code ?? '', {
+      validators: [Validators.required, Validators.pattern(/\S/)],
+    }),
+    lab_code: this.formBuilder.control<Tumor['lab_code']>(this.data.tumor?.lab_code ?? null),
+    classification: this.formBuilder.control<Tumor['classification']>(
+      this.data.tumor?.classification ?? null,
+    ),
+    ap_observation: this.formBuilder.control<Tumor['ap_observation']>(
+      this.data.tumor?.ap_observation ?? null,
+    ),
+    grade: this.formBuilder.control<Tumor['grade']>(this.data.tumor?.grade ?? null),
+    organ: this.formBuilder.control<Tumor['organ']>(this.data.tumor?.organ ?? null),
+    status: this.formBuilder.control<Tumor['status']>(this.data.tumor?.status ?? null),
+    tnm: this.formBuilder.control<Tumor['tnm']>(this.data.tumor?.tnm ?? null),
+    registration_date: this.formBuilder.control<Tumor['registration_date']>(
+      this.data.tumor?.registration_date ?? null,
+    ),
+    operation_date: this.formBuilder.control<Tumor['operation_date']>(
+      this.data.tumor?.operation_date ?? null,
+    ),
+    patient_nhc: this.formBuilder.nonNullable.control(this.data.tumor?.patient_nhc ?? '', {
+      validators: [Validators.required, Validators.pattern(/\S/)],
+    }),
+  });
 }

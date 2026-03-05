@@ -5,7 +5,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { httpResource } from '@angular/common/http';
 import { API_URL } from '../../../../core/tokens/api-url.token';
 import { Sample } from '../../models/sample.model';
@@ -29,12 +29,12 @@ export interface SampleFormData {
     MatFormFieldModule,
     MatSelectModule,
     MatCheckboxModule,
-    FormsModule,
+    ReactiveFormsModule,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.mode === 'create' ? 'New Sample' : 'Edit Sample' }}</h2>
     <mat-dialog-content>
-      <form class="form-grid">
+      <form class="form-grid" [formGroup]="form">
         <mat-form-field appearance="outline">
           <mat-label>Tumor</mat-label>
           @if (tumorsResource.isLoading()) {
@@ -42,7 +42,7 @@ export interface SampleFormData {
               <mat-option>Loading…</mat-option>
             </mat-select>
           } @else {
-            <mat-select [(ngModel)]="model.tumor_biobank_code" name="tumor_biobank_code" required>
+            <mat-select formControlName="tumor_biobank_code" required>
               @for (tumor of tumorsResource.value(); track tumor.biobank_code) {
                 <mat-option [value]="tumor.biobank_code">{{ tumor.biobank_code }}</mat-option>
               }
@@ -52,18 +52,18 @@ export interface SampleFormData {
 
         <mat-form-field appearance="outline">
           <mat-label>Biopsy Date</mat-label>
-          <input matInput [(ngModel)]="model.biopsy_date" name="biopsy_date" type="date" />
+          <input matInput formControlName="biopsy_date" type="date" />
         </mat-form-field>
         <div class="checkbox-group">
-          <mat-checkbox [(ngModel)]="model.has_serum" name="has_serum">Has Serum</mat-checkbox>
-          <mat-checkbox [(ngModel)]="model.has_buffy" name="has_buffy">Has Buffy Coat</mat-checkbox>
-          <mat-checkbox [(ngModel)]="model.has_plasma" name="has_plasma">Has Plasma</mat-checkbox>
+          <mat-checkbox formControlName="has_serum">Has Serum</mat-checkbox>
+          <mat-checkbox formControlName="has_buffy">Has Buffy Coat</mat-checkbox>
+          <mat-checkbox formControlName="has_plasma">Has Plasma</mat-checkbox>
         </div>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="model" [disabled]="!model.tumor_biobank_code">
+      <button mat-flat-button [mat-dialog-close]="form.getRawValue()" [disabled]="form.invalid">
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
     </mat-dialog-actions>
@@ -85,18 +85,20 @@ export interface SampleFormData {
 })
 export class SampleFormComponent {
   private readonly apiUrl = inject(API_URL);
-  data = inject<SampleFormData>(MAT_DIALOG_DATA);
+  readonly data = inject<SampleFormData>(MAT_DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
 
   tumorsResource = httpResource<Tumor[]>(() => `${this.apiUrl}/tumors`, { defaultValue: [] });
 
-  model: Sample = this.data.biopsy
-    ? { ...this.data.biopsy }
-    : {
-        id: '',
-        has_serum: null,
-        has_buffy: null,
-        has_plasma: null,
-        biopsy_date: null,
-        tumor_biobank_code: '',
-      };
+  readonly form = this.formBuilder.group({
+    id: this.formBuilder.nonNullable.control(this.data.biopsy?.id ?? ''),
+    has_serum: this.formBuilder.control<Sample['has_serum']>(this.data.biopsy?.has_serum ?? null),
+    has_buffy: this.formBuilder.control<Sample['has_buffy']>(this.data.biopsy?.has_buffy ?? null),
+    has_plasma: this.formBuilder.control<Sample['has_plasma']>(this.data.biopsy?.has_plasma ?? null),
+    biopsy_date: this.formBuilder.control<Sample['biopsy_date']>(this.data.biopsy?.biopsy_date ?? null),
+    tumor_biobank_code: this.formBuilder.nonNullable.control(
+      this.data.biopsy?.tumor_biobank_code ?? '',
+      { validators: [Validators.required] },
+    ),
+  });
 }

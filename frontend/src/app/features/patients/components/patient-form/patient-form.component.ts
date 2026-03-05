@@ -1,12 +1,10 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { Patient } from '../../models/patient.model';
 
 export interface PatientFormData {
@@ -23,20 +21,17 @@ export interface PatientFormData {
     MatInputModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    FormsModule,
+    ReactiveFormsModule,
   ],
   template: `
     <h2 mat-dialog-title>{{ data.mode === 'create' ? 'New Patient' : 'Edit Patient' }}</h2>
     <mat-dialog-content>
-      <form class="form-grid">
+      <form class="form-grid" [formGroup]="form">
         <mat-form-field appearance="outline">
           <mat-label>NHC</mat-label>
           <input
             matInput
-            [(ngModel)]="model.nhc"
-            name="nhc"
+            formControlName="nhc"
             required
             [readonly]="data.mode === 'edit'"
             placeholder="Enter NHC identifier"
@@ -45,7 +40,7 @@ export interface PatientFormData {
 
         <mat-form-field appearance="outline">
           <mat-label>Sex</mat-label>
-          <mat-select [(ngModel)]="model.sex" name="sex">
+          <mat-select formControlName="sex">
             <mat-option [value]="null">Not specified</mat-option>
             <mat-option value="M">Male</mat-option>
             <mat-option value="F">Female</mat-option>
@@ -54,17 +49,13 @@ export interface PatientFormData {
 
         <mat-form-field appearance="outline">
           <mat-label>Birth Date</mat-label>
-          <input matInput [(ngModel)]="model.birth_date" name="birth_date" type="date" />
+          <input matInput formControlName="birth_date" type="date" />
         </mat-form-field>
       </form>
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button
-        mat-flat-button
-        [mat-dialog-close]="model"
-        [disabled]="!model.nhc"
-      >
+      <button mat-flat-button [mat-dialog-close]="form.getRawValue()" [disabled]="form.invalid">
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
     </mat-dialog-actions>
@@ -79,9 +70,14 @@ export interface PatientFormData {
   `,
 })
 export class PatientFormComponent {
-  data = inject<PatientFormData>(MAT_DIALOG_DATA);
+  readonly data = inject<PatientFormData>(MAT_DIALOG_DATA);
+  private readonly formBuilder = inject(FormBuilder);
 
-  model: Patient = this.data.patient
-    ? { ...this.data.patient }
-    : { nhc: '', sex: null, birth_date: null };
+  readonly form = this.formBuilder.group({
+    nhc: this.formBuilder.nonNullable.control(this.data.patient?.nhc ?? '', {
+      validators: [Validators.required],
+    }),
+    sex: this.formBuilder.control<Patient['sex']>(this.data.patient?.sex ?? null),
+    birth_date: this.formBuilder.control<Patient['birth_date']>(this.data.patient?.birth_date ?? null),
+  });
 }
