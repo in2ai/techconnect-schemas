@@ -4,8 +4,16 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { API_URL } from '../../../../core/tokens/api-url.token';
 import { Tumor } from '../../models/tumor.model';
+
+interface Patient {
+  nhc: string;
+  sex: string | null;
+}
 
 export interface TumorFormData {
   mode: 'create' | 'edit';
@@ -15,19 +23,45 @@ export interface TumorFormData {
 @Component({
   selector: 'app-tumor-form',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MatDialogModule, MatButtonModule, MatInputModule, MatFormFieldModule, MatSelectModule, FormsModule],
+  imports: [
+    MatDialogModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatSelectModule,
+    MatProgressSpinnerModule,
+    FormsModule,
+  ],
   template: `
     <h2 mat-dialog-title>{{ data.mode === 'create' ? 'New Tumor' : 'Edit Tumor' }}</h2>
     <mat-dialog-content>
       <form class="form-grid">
         <mat-form-field appearance="outline">
           <mat-label>Biobank Code</mat-label>
-          <input matInput [(ngModel)]="model.biobank_code" name="biobank_code" required [readonly]="data.mode === 'edit'" />
+          <input
+            matInput
+            [(ngModel)]="model.biobank_code"
+            name="biobank_code"
+            required
+            [readonly]="data.mode === 'edit'"
+          />
         </mat-form-field>
+
         <mat-form-field appearance="outline">
-          <mat-label>Patient NHC</mat-label>
-          <input matInput [(ngModel)]="model.patient_nhc" name="patient_nhc" required />
+          <mat-label>Patient</mat-label>
+          @if (patientsResource.isLoading()) {
+            <mat-select disabled>
+              <mat-option>Loading…</mat-option>
+            </mat-select>
+          } @else {
+            <mat-select [(ngModel)]="model.patient_nhc" name="patient_nhc" required>
+              @for (patient of patientsResource.value(); track patient.nhc) {
+                <mat-option [value]="patient.nhc">{{ patient.nhc }}</mat-option>
+              }
+            </mat-select>
+          }
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Lab Code</mat-label>
           <input matInput [(ngModel)]="model.lab_code" name="lab_code" />
@@ -54,11 +88,21 @@ export interface TumorFormData {
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>AP Observation</mat-label>
-          <textarea matInput [(ngModel)]="model.ap_observation" name="ap_observation" rows="2"></textarea>
+          <textarea
+            matInput
+            [(ngModel)]="model.ap_observation"
+            name="ap_observation"
+            rows="2"
+          ></textarea>
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Registration Date</mat-label>
-          <input matInput [(ngModel)]="model.registration_date" name="registration_date" type="date" />
+          <input
+            matInput
+            [(ngModel)]="model.registration_date"
+            name="registration_date"
+            type="date"
+          />
         </mat-form-field>
         <mat-form-field appearance="outline">
           <mat-label>Operation Date</mat-label>
@@ -68,7 +112,11 @@ export interface TumorFormData {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="model" [disabled]="!model.biobank_code.trim() || !model.patient_nhc.trim()">
+      <button
+        mat-flat-button
+        [mat-dialog-close]="model"
+        [disabled]="!model.biobank_code.trim() || !model.patient_nhc.trim()"
+      >
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
     </mat-dialog-actions>
@@ -87,13 +135,24 @@ export interface TumorFormData {
   `,
 })
 export class TumorFormComponent {
+  private readonly apiUrl = inject(API_URL);
   data = inject<TumorFormData>(MAT_DIALOG_DATA);
+
+  patientsResource = httpResource<Patient[]>(() => `${this.apiUrl}/patients`, { defaultValue: [] });
 
   model: Tumor = this.data.tumor
     ? { ...this.data.tumor }
     : {
-        biobank_code: '', lab_code: null, classification: null, ap_observation: null,
-        grade: null, organ: null, status: null, tnm: null,
-        registration_date: null, operation_date: null, patient_nhc: '',
+        biobank_code: '',
+        lab_code: null,
+        classification: null,
+        ap_observation: null,
+        grade: null,
+        organ: null,
+        status: null,
+        tnm: null,
+        registration_date: null,
+        operation_date: null,
+        patient_nhc: '',
       };
 }

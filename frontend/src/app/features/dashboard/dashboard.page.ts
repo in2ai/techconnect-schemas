@@ -23,11 +23,15 @@ interface DashboardCard {
   template: `
     <div class="dashboard-hero">
       <div class="hero-content">
+        <span class="hero-badge">Platform</span>
         <h1 class="hero-title">Welcome to TechConnect</h1>
         <p class="hero-subtitle">
           Biomedical research data management platform. Navigate through your registry, biomodels,
           and clinical trial data.
         </p>
+      </div>
+      <div class="hero-decoration" aria-hidden="true">
+        <mat-icon class="hero-deco-icon">biotech</mat-icon>
       </div>
     </div>
 
@@ -39,7 +43,7 @@ interface DashboardCard {
               <div class="card-header">
                 <div
                   class="card-icon-wrap"
-                  [style.background]="card.color + '18'"
+                  [style.background]="card.color + '14'"
                   [style.color]="card.color"
                 >
                   <mat-icon>{{ card.icon }}</mat-icon>
@@ -60,6 +64,9 @@ interface DashboardCard {
               </div>
               <h3 class="card-title">{{ card.title }}</h3>
               <p class="card-desc">{{ card.description }}</p>
+              <div class="card-arrow" aria-hidden="true">
+                <mat-icon>arrow_forward</mat-icon>
+              </div>
             </mat-card-content>
           </mat-card>
         </a>
@@ -67,33 +74,66 @@ interface DashboardCard {
     </section>
   `,
   styles: `
+    /* ─── Hero ────────────────────────────────────────────────── */
+
     .dashboard-hero {
       margin-bottom: 2rem;
-      padding: 2.5rem 2rem;
+      padding: 2.5rem 2.25rem;
       background: linear-gradient(
         135deg,
         var(--mat-sys-primary-container),
         var(--mat-sys-tertiary-container)
       );
-      border-radius: 16px;
+      border-radius: 20px;
+      position: relative;
+      overflow: hidden;
+      animation: heroEnter 0.5s ease-out;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      background: color-mix(in srgb, var(--mat-sys-on-primary-container) 10%, transparent);
+      font: var(--mat-sys-label-small);
+      color: var(--mat-sys-on-primary-container);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
     }
 
     .hero-title {
       font: var(--mat-sys-display-small);
       color: var(--mat-sys-on-primary-container);
-      margin: 0 0 0.5rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
+      margin: 0 0 0.625rem;
+      font-weight: 700;
+      letter-spacing: -0.025em;
     }
 
     .hero-subtitle {
       font: var(--mat-sys-body-large);
       color: var(--mat-sys-on-primary-container);
-      opacity: 0.85;
+      opacity: 0.8;
       margin: 0;
-      max-width: 600px;
-      line-height: 1.6;
+      max-width: 560px;
+      line-height: 1.65;
     }
+
+    .hero-decoration {
+      position: absolute;
+      right: -16px;
+      bottom: -20px;
+      opacity: 0.06;
+    }
+
+    .hero-deco-icon {
+      font-size: 200px;
+      width: 200px;
+      height: 200px;
+    }
+
+    /* ─── Card Grid ───────────────────────────────────────────── */
 
     .dashboard-grid {
       display: grid;
@@ -104,20 +144,29 @@ interface DashboardCard {
     .card-link {
       text-decoration: none;
       color: inherit;
-      animation: fadeSlideUp 0.4s ease backwards;
+      animation: cardEnter 0.45s ease backwards;
     }
 
     .entity-card {
       height: 100%;
       transition:
         transform 0.2s ease,
-        box-shadow 0.2s ease;
+        box-shadow 0.25s ease;
       cursor: pointer;
-      border-radius: 12px !important;
+      border-radius: 16px !important;
+      position: relative;
+      overflow: hidden;
 
       &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        box-shadow:
+          0 8px 24px rgba(0, 0, 0, 0.06),
+          0 2px 8px rgba(0, 0, 0, 0.04);
+
+        .card-arrow {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
     }
 
@@ -134,7 +183,7 @@ interface DashboardCard {
       justify-content: center;
       width: 48px;
       height: 48px;
-      border-radius: 12px;
+      border-radius: 14px;
 
       mat-icon {
         font-size: 24px;
@@ -147,19 +196,21 @@ interface DashboardCard {
       font: var(--mat-sys-headline-medium);
       font-weight: 700;
       color: var(--mat-sys-on-surface);
+      letter-spacing: -0.02em;
     }
 
     .count-error-icon {
       color: var(--mat-sys-error);
-      font-size: 24px;
-      width: 24px;
-      height: 24px;
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
     }
 
     .card-title {
       font: var(--mat-sys-title-medium);
       color: var(--mat-sys-on-surface);
       margin: 0 0 0.25rem;
+      font-weight: 600;
     }
 
     .card-desc {
@@ -169,7 +220,38 @@ interface DashboardCard {
       line-height: 1.5;
     }
 
-    @keyframes fadeSlideUp {
+    .card-arrow {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      opacity: 0;
+      transform: translateX(-4px);
+      transition:
+        opacity 0.2s ease,
+        transform 0.2s ease;
+      color: var(--mat-sys-primary);
+
+      mat-icon {
+        font-size: 20px;
+        width: 20px;
+        height: 20px;
+      }
+    }
+
+    /* ─── Animations ──────────────────────────────────────────── */
+
+    @keyframes heroEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.98);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes cardEnter {
       from {
         opacity: 0;
         transform: translateY(16px);
@@ -182,7 +264,7 @@ interface DashboardCard {
   `,
 })
 export class DashboardPage {
-  private apiUrl = inject(API_URL);
+  private readonly apiUrl = inject(API_URL);
 
   cards: DashboardCard[] = [
     {
@@ -235,7 +317,7 @@ export class DashboardPage {
     },
   ];
 
-  private resources = new Map<string, ReturnType<typeof httpResource<unknown[]>>>();
+  private readonly resources = new Map<string, ReturnType<typeof httpResource<unknown[]>>>();
 
   constructor() {
     for (const card of this.cards) {

@@ -3,9 +3,16 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { API_URL } from '../../../../core/tokens/api-url.token';
 import { Sample } from '../../models/sample.model';
+
+interface Tumor {
+  biobank_code: string;
+}
 
 export interface SampleFormData {
   mode: 'create' | 'edit';
@@ -20,6 +27,7 @@ export interface SampleFormData {
     MatButtonModule,
     MatInputModule,
     MatFormFieldModule,
+    MatSelectModule,
     MatCheckboxModule,
     FormsModule,
   ],
@@ -28,14 +36,20 @@ export interface SampleFormData {
     <mat-dialog-content>
       <form class="form-grid">
         <mat-form-field appearance="outline">
-          <mat-label>Tumor Biobank Code</mat-label>
-          <input
-            matInput
-            [(ngModel)]="model.tumor_biobank_code"
-            name="tumor_biobank_code"
-            required
-          />
+          <mat-label>Tumor</mat-label>
+          @if (tumorsResource.isLoading()) {
+            <mat-select disabled>
+              <mat-option>Loading…</mat-option>
+            </mat-select>
+          } @else {
+            <mat-select [(ngModel)]="model.tumor_biobank_code" name="tumor_biobank_code" required>
+              @for (tumor of tumorsResource.value(); track tumor.biobank_code) {
+                <mat-option [value]="tumor.biobank_code">{{ tumor.biobank_code }}</mat-option>
+              }
+            </mat-select>
+          }
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Biopsy Date</mat-label>
           <input matInput [(ngModel)]="model.biopsy_date" name="biopsy_date" type="date" />
@@ -70,7 +84,10 @@ export interface SampleFormData {
   `,
 })
 export class SampleFormComponent {
+  private readonly apiUrl = inject(API_URL);
   data = inject<SampleFormData>(MAT_DIALOG_DATA);
+
+  tumorsResource = httpResource<Tumor[]>(() => `${this.apiUrl}/tumors`, { defaultValue: [] });
 
   model: Sample = this.data.biopsy
     ? { ...this.data.biopsy }

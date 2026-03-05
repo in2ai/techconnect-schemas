@@ -6,7 +6,14 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule } from '@angular/forms';
+import { httpResource } from '@angular/common/http';
+import { API_URL } from '../../../../core/tokens/api-url.token';
 import { Biomodel } from '../../models/biomodel.model';
+
+interface Tumor {
+  biobank_code: string;
+  classification: string | null;
+}
 
 export interface BiomodelFormData {
   mode: 'create' | 'edit';
@@ -30,14 +37,20 @@ export interface BiomodelFormData {
     <mat-dialog-content>
       <form class="form-grid">
         <mat-form-field appearance="outline">
-          <mat-label>Tumor Biobank Code</mat-label>
-          <input
-            matInput
-            [(ngModel)]="model.tumor_biobank_code"
-            name="tumor_biobank_code"
-            required
-          />
+          <mat-label>Tumor</mat-label>
+          @if (tumorsResource.isLoading()) {
+            <mat-select disabled>
+              <mat-option>Loading…</mat-option>
+            </mat-select>
+          } @else {
+            <mat-select [(ngModel)]="model.tumor_biobank_code" name="tumor_biobank_code" required>
+              @for (tumor of tumorsResource.value(); track tumor.biobank_code) {
+                <mat-option [value]="tumor.biobank_code">{{ tumor.biobank_code }}</mat-option>
+              }
+            </mat-select>
+          }
         </mat-form-field>
+
         <mat-form-field appearance="outline">
           <mat-label>Type</mat-label>
           <input matInput [(ngModel)]="model.type" name="type" />
@@ -88,7 +101,10 @@ export interface BiomodelFormData {
   `,
 })
 export class BiomodelFormComponent {
+  private readonly apiUrl = inject(API_URL);
   data = inject<BiomodelFormData>(MAT_DIALOG_DATA);
+
+  tumorsResource = httpResource<Tumor[]>(() => `${this.apiUrl}/tumors`, { defaultValue: [] });
 
   model: Biomodel = this.data.biomodel
     ? { ...this.data.biomodel }

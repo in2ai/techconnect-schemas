@@ -333,54 +333,16 @@ import {
       </mat-tab-group>
     }
   `,
-  styles: `
-    .detail-card,
-    .section-card {
-      margin-bottom: 1rem;
-      border-radius: 12px !important;
-    }
-    .section-card {
-      margin-top: 1rem;
-    }
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .detail-item.full-width {
-      grid-column: 1 / -1;
-    }
-    .detail-label {
-      font: var(--mat-sys-label-medium);
-      color: var(--mat-sys-on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .detail-value {
-      font: var(--mat-sys-body-large);
-      color: var(--mat-sys-on-surface);
-    }
-    .detail-tabs {
-      margin-top: 1rem;
-    }
-    .tab-content {
-      padding: 1.5rem 0;
-    }
-  `,
+  styles: [],
 })
 export class TrialDetailPage {
   id = input.required<string>();
 
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-  private trialService = inject(TrialService);
-  private notification = inject(NotificationService);
-  private apiUrl = inject(API_URL);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly trialService = inject(TrialService);
+  private readonly notification = inject(NotificationService);
+  private readonly apiUrl = inject(API_URL);
 
   breadcrumbs = computed<Breadcrumb[]>(() => [
     { label: 'Trials', route: '/trials' },

@@ -133,47 +133,16 @@ import {
       </mat-tab-group>
     }
   `,
-  styles: `
-    .detail-card {
-      margin-bottom: 1.5rem;
-      border-radius: 12px !important;
-    }
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-    .detail-label {
-      font: var(--mat-sys-label-medium);
-      color: var(--mat-sys-on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-    .detail-value {
-      font: var(--mat-sys-body-large);
-      color: var(--mat-sys-on-surface);
-    }
-    .detail-tabs {
-      margin-top: 1rem;
-    }
-    .tab-content {
-      padding: 1.5rem 0;
-    }
-  `,
+  styles: [],
 })
 export class BiomodelDetailPage {
   id = input.required<string>();
 
-  private router = inject(Router);
-  private dialog = inject(MatDialog);
-  private biomodelService = inject(BiomodelService);
-  private notification = inject(NotificationService);
-  private apiUrl = inject(API_URL);
+  private readonly router = inject(Router);
+  private readonly dialog = inject(MatDialog);
+  private readonly biomodelService = inject(BiomodelService);
+  private readonly notification = inject(NotificationService);
+  private readonly apiUrl = inject(API_URL);
 
   breadcrumbs = computed<Breadcrumb[]>(() => [
     { label: 'Biomodels', route: '/biomodels' },

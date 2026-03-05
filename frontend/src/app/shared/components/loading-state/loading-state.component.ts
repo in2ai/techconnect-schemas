@@ -11,15 +11,20 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     @switch (status()) {
       @case ('loading') {
         <div class="state-container" role="status" aria-live="polite">
-          <mat-spinner diameter="48" aria-label="Loading content"></mat-spinner>
-          <p class="state-text">Loading...</p>
+          <mat-spinner diameter="40" aria-label="Loading content"></mat-spinner>
+          <p class="state-text">Loading…</p>
         </div>
       }
       @case ('error') {
         <div class="state-container">
-          <mat-icon class="error-icon">error_outline</mat-icon>
-          <p class="state-text">{{ errorMessage() || 'Something went wrong' }}</p>
-          <button mat-stroked-button (click)="retry.emit()">
+          <div class="error-icon-wrap">
+            <mat-icon class="error-icon">error_outline</mat-icon>
+          </div>
+          <p class="state-title">Something went wrong</p>
+          <p class="state-text">
+            {{ errorMessage() || 'We could not load the data. Please try again.' }}
+          </p>
+          <button mat-stroked-button (click)="retry.emit()" class="retry-btn">
             <mat-icon>refresh</mat-icon>
             Retry
           </button>
@@ -27,7 +32,9 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       }
       @case ('empty') {
         <div class="state-container">
-          <mat-icon class="empty-icon" aria-hidden="true">{{ emptyIcon() }}</mat-icon>
+          <div class="empty-icon-wrap">
+            <mat-icon class="empty-icon" aria-hidden="true">{{ emptyIcon() }}</mat-icon>
+          </div>
           <p class="state-title">{{ emptyTitle() || 'No data found' }}</p>
           <p class="state-text">{{ emptyMessage() || 'There are no items to display yet.' }}</p>
         </div>
@@ -40,36 +47,74 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 3rem 1.5rem;
-      gap: 1rem;
+      padding: 3.5rem 1.5rem;
+      gap: 0.75rem;
       text-align: center;
+      animation: stateEnter 0.4s ease;
     }
 
     .state-text {
       color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-body-large);
+      font: var(--mat-sys-body-medium);
       margin: 0;
+      max-width: 360px;
+      line-height: 1.5;
     }
 
     .state-title {
       font: var(--mat-sys-title-medium);
       color: var(--mat-sys-on-surface);
       margin: 0;
+      font-weight: 600;
+    }
+
+    .error-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--mat-sys-error) 10%, transparent);
     }
 
     .error-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
       color: var(--mat-sys-error);
     }
 
+    .empty-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--mat-sys-surface-container);
+    }
+
     .empty-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
+      font-size: 36px;
+      width: 36px;
+      height: 36px;
       color: var(--mat-sys-outline);
-      opacity: 0.6;
+    }
+
+    .retry-btn {
+      margin-top: 0.5rem;
+    }
+
+    @keyframes stateEnter {
+      from {
+        opacity: 0;
+        transform: scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
   `,
 })

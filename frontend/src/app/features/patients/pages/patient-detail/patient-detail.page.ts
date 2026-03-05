@@ -13,11 +13,20 @@ import { PatientService } from '../../services/patient.service';
 import { Patient } from '../../models/patient.model';
 import { Tumor } from '../../../tumors/models/tumor.model';
 import { TumorService } from '../../../tumors/services/tumor.service';
-import { PageHeaderComponent, Breadcrumb } from '../../../../shared/components/page-header/page-header.component';
-import { DataTableComponent, ColumnDef } from '../../../../shared/components/data-table/data-table.component';
+import {
+  PageHeaderComponent,
+  Breadcrumb,
+} from '../../../../shared/components/page-header/page-header.component';
+import {
+  DataTableComponent,
+  ColumnDef,
+} from '../../../../shared/components/data-table/data-table.component';
 import { LoadingStateComponent } from '../../../../shared/components/loading-state/loading-state.component';
 import { PatientFormComponent } from '../../components/patient-form/patient-form.component';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent,
+  ConfirmDialogData,
+} from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'app-patient-detail',
@@ -33,10 +42,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
     LoadingStateComponent,
   ],
   template: `
-    <app-page-header
-      [title]="'Patient ' + nhc()"
-      [breadcrumbs]="breadcrumbs()"
-    >
+    <app-page-header [title]="'Patient ' + nhc()" [breadcrumbs]="breadcrumbs()">
       <button mat-stroked-button (click)="openEditDialog()">
         <mat-icon>edit</mat-icon>
         Edit
@@ -50,7 +56,11 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
     @if (patientResource.isLoading()) {
       <app-loading-state status="loading" />
     } @else if (patientResource.error()) {
-      <app-loading-state status="error" errorMessage="Failed to load patient" (retry)="patientResource.reload()" />
+      <app-loading-state
+        status="error"
+        errorMessage="Failed to load patient"
+        (retry)="patientResource.reload()"
+      />
     } @else if (patientResource.hasValue()) {
       <mat-card appearance="outlined" class="detail-card">
         <mat-card-content>
@@ -101,44 +111,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../../../shared/co
       </mat-tab-group>
     }
   `,
-  styles: `
-    .detail-card {
-      margin-bottom: 1.5rem;
-      border-radius: 12px !important;
-    }
-
-    .detail-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .detail-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .detail-label {
-      font: var(--mat-sys-label-medium);
-      color: var(--mat-sys-on-surface-variant);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .detail-value {
-      font: var(--mat-sys-body-large);
-      color: var(--mat-sys-on-surface);
-    }
-
-    .detail-tabs {
-      margin-top: 1rem;
-    }
-
-    .tab-content {
-      padding: 1.5rem 0;
-    }
-  `,
+  styles: [],
 })
 export class PatientDetailPage {
   nhc = input.required<string>();
@@ -161,8 +134,8 @@ export class PatientDetailPage {
     defaultValue: [],
   });
 
-  filteredTumors = computed(() =>
-    this.tumorsResource.value()?.filter((t) => t.patient_nhc === this.nhc()) ?? [],
+  filteredTumors = computed(
+    () => this.tumorsResource.value()?.filter((t) => t.patient_nhc === this.nhc()) ?? [],
   );
 
   tumorColumns: ColumnDef[] = [

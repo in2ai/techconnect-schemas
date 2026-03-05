@@ -1,12 +1,24 @@
 """Shared CRUD operations for SQLModel entities."""
 
-from typing import TypeVar
+from typing import Any, TypeVar
+from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import SQLModel, Session, select
 
 ModelType = TypeVar("ModelType", bound=SQLModel)
+
+
+def _coerce_pk(model: type[ModelType], item_id: str) -> Any:
+    """Convert item_id to the expected primary key type (e.g. UUID)."""
+    pk_fields = [f for f in model.model_fields.values() if getattr(f, "primary_key", False)]
+    if pk_fields and pk_fields[0].annotation is UUID:
+        try:
+            return UUID(item_id)
+        except ValueError as exc:
+            raise HTTPException(status_code=422, detail=f"Invalid UUID: {item_id}") from exc
+    return item_id
 
 
 def list_items(
@@ -23,7 +35,8 @@ def list_items(
 
 def get_item_or_404(session: Session, model: type[ModelType], item_id: str) -> ModelType:
     """Fetch one entity or raise 404."""
-    item = session.get(model, item_id)
+    pk = _coerce_pk(model, item_id)
+    item = session.get(model, pk)
     if item is None:
         raise HTTPException(status_code=404, detail=f"{model.__name__} not found")
     return item

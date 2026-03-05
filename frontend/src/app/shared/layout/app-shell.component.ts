@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, signal, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { inject } from '@angular/core';
 import { map } from 'rxjs';
 
 interface NavItem {
@@ -40,12 +39,17 @@ interface NavItem {
       >
         <div class="sidenav-header">
           <a routerLink="/dashboard" class="brand-link">
-            <mat-icon class="brand-icon">biotech</mat-icon>
-            <span class="brand-text">TechConnect</span>
+            <div class="brand-icon-wrap">
+              <mat-icon class="brand-icon">biotech</mat-icon>
+            </div>
+            <div class="brand-text-wrap">
+              <span class="brand-text">TechConnect</span>
+              <span class="brand-subtitle">Biomedical Registry</span>
+            </div>
           </a>
         </div>
 
-        <mat-nav-list>
+        <mat-nav-list class="sidenav-nav">
           @for (group of navGroups; track group.title) {
             <div class="nav-group">
               <span class="nav-group-label">{{ group.title }}</span>
@@ -54,9 +58,10 @@ interface NavItem {
                   mat-list-item
                   [routerLink]="item.route"
                   routerLinkActive="active-link"
+                  class="nav-item"
                   (click)="isMobile() ? sidenav.close() : null"
                 >
-                  <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+                  <mat-icon matListItemIcon class="nav-icon">{{ item.icon }}</mat-icon>
                   <span matListItemTitle>{{ item.label }}</span>
                 </a>
               }
@@ -72,7 +77,6 @@ interface NavItem {
               <mat-icon>menu</mat-icon>
             </button>
           }
-          <span class="toolbar-spacer"></span>
         </mat-toolbar>
 
         <main class="content-area">
@@ -82,19 +86,25 @@ interface NavItem {
     </mat-sidenav-container>
   `,
   styles: `
+    /* ─── Shell Container ──────────────────────────────────────── */
+
     .shell-container {
       height: 100%;
     }
 
+    /* ─── Sidenav ──────────────────────────────────────────────── */
+
     .app-sidenav {
-      width: 260px;
-      border-right: 1px solid var(--mat-sys-outline-variant);
+      width: 264px;
+      border-right: none;
       background: var(--mat-sys-surface);
+      display: flex;
+      flex-direction: column;
+      box-shadow: 1px 0 0 var(--mat-sys-outline-variant);
     }
 
     .sidenav-header {
-      padding: 1.25rem 1rem;
-      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      padding: 1.25rem 1.25rem 1rem;
     }
 
     .brand-link {
@@ -103,43 +113,115 @@ interface NavItem {
       gap: 0.75rem;
       text-decoration: none;
       color: var(--mat-sys-on-surface);
+      padding: 0.5rem;
+      border-radius: 12px;
+      transition: background-color 0.2s ease;
+
+      &:hover {
+        background-color: var(--mat-sys-surface-variant);
+      }
+    }
+
+    .brand-icon-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--mat-sys-primary), var(--mat-sys-tertiary));
+      flex-shrink: 0;
     }
 
     .brand-icon {
-      color: var(--mat-sys-primary);
-      font-size: 28px;
-      width: 28px;
-      height: 28px;
+      color: var(--mat-sys-on-primary);
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+    }
+
+    .brand-text-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.05rem;
+      min-width: 0;
     }
 
     .brand-text {
-      font: var(--mat-sys-title-large);
-      font-weight: 600;
+      font: var(--mat-sys-title-medium);
+      font-weight: 700;
       letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .brand-subtitle {
+      font: var(--mat-sys-label-small);
+      color: var(--mat-sys-on-surface-variant);
+      letter-spacing: 0.02em;
+    }
+
+    /* ─── Navigation ───────────────────────────────────────────── */
+
+    .sidenav-nav {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 0.75rem;
     }
 
     .nav-group {
-      padding: 0.5rem 0;
+      padding: 0.375rem 0;
     }
 
     .nav-group-label {
       display: block;
-      padding: 0.5rem 1rem 0.25rem;
+      padding: 0.75rem 1rem 0.375rem;
       font: var(--mat-sys-label-small);
       color: var(--mat-sys-on-surface-variant);
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+    }
+
+    .nav-item {
+      border-radius: 10px !important;
+      margin-bottom: 2px;
+      transition: background-color 0.15s ease;
+    }
+
+    .nav-icon {
+      color: var(--mat-sys-on-surface-variant);
+      transition: color 0.15s ease;
     }
 
     .active-link {
       background-color: var(--mat-sys-secondary-container) !important;
       color: var(--mat-sys-on-secondary-container) !important;
-      border-radius: 28px;
+      font-weight: 500;
 
+      .nav-icon,
       mat-icon {
         color: var(--mat-sys-on-secondary-container);
       }
     }
+
+    /* ─── Sidenav Footer ───────────────────────────────────────── */
+
+    .sidenav-footer {
+      padding: 0.5rem 1.25rem 1rem;
+    }
+
+    .footer-divider {
+      height: 1px;
+      background: var(--mat-sys-outline-variant);
+      margin-bottom: 0.75rem;
+    }
+
+    .footer-version {
+      font: var(--mat-sys-label-small);
+      color: var(--mat-sys-outline);
+    }
+
+    /* ─── Toolbar ──────────────────────────────────────────────── */
 
     .app-toolbar {
       background: var(--mat-sys-surface);
@@ -147,34 +229,47 @@ interface NavItem {
       position: sticky;
       top: 0;
       z-index: 10;
+      gap: 0.5rem;
+      padding: 0 1.25rem;
     }
 
-    .toolbar-spacer {
-      flex: 1;
-    }
+    /* ─── Main Content ─────────────────────────────────────────── */
 
     .main-content {
       display: flex;
       flex-direction: column;
       height: 100%;
+      background: var(--mat-sys-surface-container-lowest);
     }
 
     .content-area {
       flex: 1;
-      padding: 1.5rem 2rem;
-      max-width: 1400px;
+      padding: 1.75rem 2.25rem;
+      max-width: 1440px;
       width: 100%;
       margin: 0 auto;
       box-sizing: border-box;
+      animation: fadeSlideUp 0.3s ease-out;
 
       @media (max-width: 768px) {
         padding: 1rem;
       }
     }
+
+    @keyframes fadeSlideUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
   `,
 })
 export class AppShellComponent {
-  private breakpoint = inject(BreakpointObserver);
+  private readonly breakpoint = inject(BreakpointObserver);
 
   isMobile = toSignal(this.breakpoint.observe([Breakpoints.Handset]).pipe(map((r) => r.matches)), {
     initialValue: false,
