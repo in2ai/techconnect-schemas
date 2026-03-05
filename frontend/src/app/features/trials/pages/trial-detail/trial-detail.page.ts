@@ -30,6 +30,7 @@ import {
   ConfirmDialogComponent,
   ConfirmDialogData,
 } from '../../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { TrialFormComponent } from '../../components/trial-form/trial-form.component';
 
 @Component({
   selector: 'app-trial-detail',
@@ -45,6 +46,9 @@ import {
   ],
   template: `
     <app-page-header title="Trial" [breadcrumbs]="breadcrumbs()">
+      <button mat-stroked-button (click)="openEditDialog()" [disabled]="!trialResource.hasValue()">
+        <mat-icon>edit</mat-icon> Edit
+      </button>
       <button mat-stroked-button color="warn" (click)="confirmDelete()">
         <mat-icon>delete</mat-icon> Delete
       </button>
@@ -420,6 +424,30 @@ export class TrialDetailPage {
     { key: 'cryo_date', label: 'Date', type: 'date' },
     { key: 'vial_count', label: 'Vials', type: 'number' },
   ];
+
+  openEditDialog(): void {
+    const trial = this.trialResource.value();
+    if (!trial) return;
+
+    const dialogRef = this.dialog.open(TrialFormComponent, {
+      width: '600px',
+      data: { mode: 'edit', trial },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.trialService.update(trial.id, result).subscribe({
+          next: () => {
+            this.notification.success('Trial updated');
+            this.trialResource.reload();
+          },
+          error: () => {
+            this.notification.error('Failed to update trial');
+          },
+        });
+      }
+    });
+  }
 
   confirmDelete(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {

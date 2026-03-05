@@ -63,7 +63,7 @@ export interface SampleFormData {
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-flat-button [mat-dialog-close]="form.getRawValue()" [disabled]="form.invalid">
+      <button mat-flat-button [mat-dialog-close]="buildDialogResult()" [disabled]="form.invalid">
         {{ data.mode === 'create' ? 'Create' : 'Save' }}
       </button>
     </mat-dialog-actions>
@@ -101,4 +101,13 @@ export class SampleFormComponent {
       { validators: [Validators.required] },
     ),
   });
+
+  buildDialogResult(): Partial<Sample> {
+    const value = this.form.getRawValue();
+    if (this.data.mode === 'create') {
+      const { id: _, ...createPayload } = value;
+      return createPayload;
+    }
+    return value;
+  }
 }

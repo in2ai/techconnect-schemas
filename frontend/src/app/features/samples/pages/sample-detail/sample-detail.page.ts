@@ -9,6 +9,7 @@ import { API_URL } from '../../../../core/tokens/api-url.token';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { SampleService } from '../../services/sample.service';
 import { Sample } from '../../models/sample.model';
+import { SampleFormComponent } from '../../components/sample-form/sample-form.component';
 import {
   PageHeaderComponent,
   Breadcrumb,
@@ -31,6 +32,13 @@ import {
   ],
   template: `
     <app-page-header title="Sample" [breadcrumbs]="breadcrumbs()">
+      <button
+        mat-stroked-button
+        (click)="openEditDialog()"
+        [disabled]="!resource.hasValue()"
+      >
+        <mat-icon>edit</mat-icon> Edit
+      </button>
       <button
         mat-stroked-button
         color="warn"
@@ -117,6 +125,30 @@ export class SampleDetailPage {
   ]);
 
   resource = httpResource<Sample>(() => `${this.apiUrl}/samples/${this.id()}`);
+
+  openEditDialog(): void {
+    const sample = this.resource.value();
+    if (!sample) return;
+
+    const dialogRef = this.dialog.open(SampleFormComponent, {
+      width: '500px',
+      data: { mode: 'edit', biopsy: sample },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.service.update(sample.id, result).subscribe({
+          next: () => {
+            this.notification.success('Sample updated');
+            this.resource.reload();
+          },
+          error: () => {
+            this.notification.error('Failed to update sample');
+          },
+        });
+      }
+    });
+  }
 
   confirmDelete(): void {
     const dialogRef = this.dialog.open(ConfirmDialogComponent, {
